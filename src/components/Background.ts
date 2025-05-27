@@ -13,7 +13,7 @@ export function createBackground(): THREE.Group {
   };
   const generateScale = () => {
     const minScale = 0.5;
-    const maxScale = 2;
+    const maxScale = 50;
     return Math.random() * (maxScale - minScale) + minScale;
   };
   // Create multiple shapes with different geometries

@@ -98,24 +98,24 @@ export default function ThreeScene() {
     scene.add(backgroundShape);
 
     // 3. Create particle system
-    const particleCount = 1000;
-    const particles = new THREE.Group();
-    const particleGeometry = new THREE.SphereGeometry(0.05, 8, 8);
-    const particleMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    // const particleCount = 1000;
+    // const particles = new THREE.Group();
+    // const particleGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+    // const particleMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
-    for (let i = 0; i < particleCount; i++) {
-      const particle = new THREE.Mesh(particleGeometry, particleMaterial);
-      particle.userData = {
-        originalX: (Math.random() - 0.5) * 10,
-        originalY: (Math.random() - 0.5) * 10,
-        originalZ: (Math.random() - 0.5) * 10,
-        timeOffset: Math.random() * 1000,
-      };
-      particles.add(particle);
-    }
-    scene.add(particles);
+    // for (let i = 0; i < particleCount; i++) {
+    //   const particle = new THREE.Mesh(particleGeometry, particleMaterial);
+    //   particle.userData = {
+    //     originalX: (Math.random() - 0.5) * 10,
+    //     originalY: (Math.random() - 0.5) * 10,
+    //     originalZ: (Math.random() - 0.5) * 10,
+    //     timeOffset: Math.random() * 1000,
+    //   };
+    //   particles.add(particle);
+    // }
+    // scene.add(particles);
 
-    // Create and add background
+    // // Create and add background
     const background = createBackground();
     scene.add(background);
 
@@ -142,24 +142,24 @@ export default function ThreeScene() {
         backgroundShape.material.uniforms.time.value = time;
       }
 
-      // Animate particles
-      particles.children.forEach((particle) => {
-        const { originalX, originalY, originalZ, timeOffset } =
-          particle.userData;
-        const noiseX = noise(originalX * 0.1, time * 0.1 + timeOffset) * 2;
-        const noiseY =
-          noise(originalY * 0.1, time * 0.1 + timeOffset + 100) * 2;
-        const noiseZ =
-          noise(originalZ * 0.1, time * 0.1 + timeOffset + 200) * 2;
+      //   // Animate particles
+      //   particles.children.forEach((particle) => {
+      //     const { originalX, originalY, originalZ, timeOffset } =
+      //       particle.userData;
+      //     const noiseX = noise(originalX * 0.1, time * 0.1 + timeOffset) * 2;
+      //     const noiseY =
+      //       noise(originalY * 0.1, time * 0.1 + timeOffset + 100) * 2;
+      //     const noiseZ =
+      //       noise(originalZ * 0.1, time * 0.1 + timeOffset + 200) * 2;
 
-        particle.position.x = originalX + noiseX;
-        particle.position.y = originalY + noiseY;
-        particle.position.z = originalZ + noiseZ;
-      });
+      //     particle.position.x = originalX + noiseX;
+      //     particle.position.y = originalY + noiseY;
+      //     particle.position.z = originalZ + noiseZ;
+      //   });
 
       // Rotate terrain and particles
       terrain.rotation.z += 0.001;
-      particles.rotation.y += 0.001;
+      // particles.rotation.y += 0.001;
 
       renderer.render(scene, camera);
     };
