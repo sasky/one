@@ -5,7 +5,7 @@ export function createBackground(): THREE.Group {
   const group = new THREE.Group();
   const shapes: THREE.Mesh<THREE.ShapeGeometry, THREE.MeshBasicMaterial>[] = [];
 
-  const numShapes = 100;
+  const numShapes = 10;
   const generateNumPoints = () => {
     const minPoints = 3;
     const maxPoints = 20;
@@ -13,7 +13,7 @@ export function createBackground(): THREE.Group {
   };
   const generateScale = () => {
     const minScale = 0.5;
-    const maxScale = 5;
+    const maxScale = 2;
     return Math.random() * (maxScale - minScale) + minScale;
   };
   // Create multiple shapes with different geometries
