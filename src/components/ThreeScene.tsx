@@ -28,6 +28,59 @@ export default function ThreeScene() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     container.appendChild(renderer.domElement);
 
+    // Store initial camera position and rotation
+    const initialCameraPosition = new THREE.Vector3(0, 5, 15);
+    const initialCameraRotation = new THREE.Euler(0, 0, 0);
+    camera.position.copy(initialCameraPosition);
+    camera.rotation.copy(initialCameraRotation);
+
+    // Mouse interaction state
+    let isMouseDown = false;
+    let previousMousePosition = { x: 0, y: 0 };
+    let targetCameraPosition = new THREE.Vector3().copy(initialCameraPosition);
+    let targetCameraRotation = new THREE.Euler().copy(initialCameraRotation);
+    let isReturningToStart = false;
+
+    // Mouse event handlers
+    const onMouseDown = (event: MouseEvent) => {
+      isMouseDown = true;
+      isReturningToStart = false;
+      previousMousePosition = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+    };
+
+    const onMouseMove = (event: MouseEvent) => {
+      if (!isMouseDown) return;
+
+      const deltaMove = {
+        x: event.clientX - previousMousePosition.x,
+        y: event.clientY - previousMousePosition.y,
+      };
+
+      // Update target position and rotation based on mouse movement
+      targetCameraPosition.x += deltaMove.x * 0.01;
+      targetCameraPosition.y -= deltaMove.y * 0.01;
+      targetCameraRotation.y += deltaMove.x * 0.005;
+      targetCameraRotation.x += deltaMove.y * 0.005;
+
+      previousMousePosition = {
+        x: event.clientX,
+        y: event.clientY,
+      };
+    };
+
+    const onMouseUp = () => {
+      isMouseDown = false;
+      isReturningToStart = true;
+    };
+
+    // Add event listeners
+    container.addEventListener("mousedown", onMouseDown);
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+
     // 1. Create a noise-based terrain
     const terrainSize = 20;
     const terrainResolution = 50;
@@ -127,10 +180,6 @@ export default function ThreeScene() {
     scene.add(light);
     scene.add(new THREE.AmbientLight(0x404040));
 
-    camera.position.z = 15;
-    camera.position.y = 5;
-    camera.lookAt(0, 0, 0);
-
     let time = 0;
     // Animation loop
     const animate = () => {
@@ -142,20 +191,44 @@ export default function ThreeScene() {
         backgroundShape.material.uniforms.time.value = time;
       }
 
-      //   // Animate particles
-      //   particles.children.forEach((particle) => {
-      //     const { originalX, originalY, originalZ, timeOffset } =
-      //       particle.userData;
-      //     const noiseX = noise(originalX * 0.1, time * 0.1 + timeOffset) * 2;
-      //     const noiseY =
-      //       noise(originalY * 0.1, time * 0.1 + timeOffset + 100) * 2;
-      //     const noiseZ =
-      //       noise(originalZ * 0.1, time * 0.1 + timeOffset + 200) * 2;
+      // Smooth camera movement
+      if (isReturningToStart) {
+        // Gradually return to initial position and rotation
+        targetCameraPosition.lerp(initialCameraPosition, 0.05);
+        targetCameraRotation.x = THREE.MathUtils.lerp(
+          targetCameraRotation.x,
+          initialCameraRotation.x,
+          0.05
+        );
+        targetCameraRotation.y = THREE.MathUtils.lerp(
+          targetCameraRotation.y,
+          initialCameraRotation.y,
+          0.05
+        );
+        targetCameraRotation.z = THREE.MathUtils.lerp(
+          targetCameraRotation.z,
+          initialCameraRotation.z,
+          0.05
+        );
+      }
 
-      //     particle.position.x = originalX + noiseX;
-      //     particle.position.y = originalY + noiseY;
-      //     particle.position.z = originalZ + noiseZ;
-      //   });
+      // Apply smooth camera movement
+      camera.position.lerp(targetCameraPosition, 0.1);
+      camera.rotation.x = THREE.MathUtils.lerp(
+        camera.rotation.x,
+        targetCameraRotation.x,
+        0.1
+      );
+      camera.rotation.y = THREE.MathUtils.lerp(
+        camera.rotation.y,
+        targetCameraRotation.y,
+        0.1
+      );
+      camera.rotation.z = THREE.MathUtils.lerp(
+        camera.rotation.z,
+        targetCameraRotation.z,
+        0.1
+      );
 
       // Rotate terrain and particles
       terrain.rotation.z += 0.001;
@@ -176,6 +249,9 @@ export default function ThreeScene() {
     // Cleanup
     onCleanup(() => {
       window.removeEventListener("resize", handleResize);
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+      container?.removeEventListener("mousedown", onMouseDown);
       container?.removeChild(renderer.domElement);
       cleanupBackground(background);
       renderer.dispose();
